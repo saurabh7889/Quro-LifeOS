@@ -78,27 +78,43 @@ router.post('/login', (req, res) => {
 
 // Forgot Password
 router.post('/forgot-password', async (req, res) => {
+  console.log('\n🔑 POST /auth/forgot-password hit');
   try {
     const { email } = req.body;
+    console.log(`   Email received: ${email}`);
+
     if (!email) {
       return res.status(400).json({ error: 'Email is required' });
     }
 
     const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
     if (!user) {
+      console.log('   ⚠️  No user found with this email — returning generic success response');
       // Don't reveal if email exists, just return success
       return res.json({ message: 'If that email exists, a reset link has been sent.' });
     }
 
+    console.log(`   ✅ User found: id=${user.id}, name=${user.name}`);
+
     // Secret is combined with current password hash so token invalidates after password change
     const secret = JWT_SECRET + user.password_hash;
     const token = jwt.sign({ email: user.email, id: user.id }, secret, { expiresIn: '15m' });
+    console.log('   🎟️  Reset token generated (expires in 15m)');
 
-    // The frontend URL to redirect to
-    const frontendUrl = process.env.VITE_API_URL ? process.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5173';
+    // Build reset link pointing to the FRONTEND (not the API)
+    const frontendUrl = process.env.FRONTEND_URL || 'https://qurolifeos.vercel.app';
     const resetLink = `${frontendUrl}?resetToken=${token}&id=${user.id}`;
+    console.log(`   🔗 Reset link: ${resetLink}`);
 
-    await sendResetEmail(user.email, resetLink);
+    try {
+      await sendResetEmail(user.email, resetLink);
+      console.log('   ✅ Email send completed');
+    } catch (emailErr) {
+      console.error('   ❌ Email send failed:', emailErr.message);
+      // Still log the reset link so it can be used manually
+      console.log(`   📋 FALLBACK — Use this link manually: ${resetLink}`);
+      // Don't return a 500 — still tell user "if email exists..." for security
+    }
 
     res.json({ message: 'If that email exists, a reset link has been sent.' });
   } catch (err) {

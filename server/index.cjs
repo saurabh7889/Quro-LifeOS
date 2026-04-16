@@ -48,4 +48,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 QURO LifeOS Backend running on http://localhost:${PORT}`);
   console.log(`📦 Database: ${path.join(__dirname, 'quro.db')}`);
+  console.log(`🌐 FRONTEND_URL: ${process.env.FRONTEND_URL || '(not set — defaulting to https://qurolifeos.vercel.app)'}`);
+  console.log(`📧 EMAIL_USER: ${process.env.EMAIL_USER ? '✅ set' : '❌ NOT SET'}`);
+  console.log(`🔑 EMAIL_PASS: ${process.env.EMAIL_PASS ? '✅ set' : '❌ NOT SET'}`);
 });
