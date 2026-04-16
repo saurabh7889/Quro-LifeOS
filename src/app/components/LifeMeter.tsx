@@ -3,10 +3,12 @@ import { motion } from "motion/react";
 import { Trophy, Target, Brain, Heart, BookOpen, Wallet, Zap } from "lucide-react";
 import * as api from "../api";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { useIsMobile } from "./ui/use-mobile";
 
 const iconMap: Record<string, any> = { Zap, Heart, BookOpen, Wallet, Target };
 
 export function LifeMeter() {
+  const isMobile = useIsMobile();
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -19,11 +21,11 @@ export function LifeMeter() {
   const hasCategoryData = (data.categories?.length || 0) > 0;
 
   return (
-    <div className="p-6 space-y-6">
-      <div><h2 className="mb-1 flex items-center gap-2"><Trophy className="w-6 h-6 text-accent" />Life Meter</h2><p className="text-sm text-muted-foreground">Your comprehensive life performance dashboard</p></div>
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
+      <div><h2 className={`mb-1 flex items-center gap-2 ${isMobile ? 'text-lg' : ''}`}><Trophy className="w-5 h-5 md:w-6 md:h-6 text-accent" />Life Meter</h2><p className="text-sm text-muted-foreground">Your comprehensive life performance dashboard</p></div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="lg:col-span-1 glass rounded-2xl p-8 relative overflow-hidden">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className={`lg:col-span-1 glass rounded-2xl ${isMobile ? 'p-6' : 'p-8'} relative overflow-hidden`}>
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-accent/20 to-purple-500/20" />
           <div className="relative z-10">
             <h3 className="text-sm text-muted-foreground mb-6 text-center">Overall Life Score</h3>
@@ -81,9 +83,9 @@ export function LifeMeter() {
       </div>
 
       {hasInsightData && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="glass rounded-2xl p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="glass rounded-2xl p-4 md:p-6">
           <h3 className="mb-4 flex items-center gap-2"><Brain className="w-5 h-5 text-accent" />AI-Powered Insights</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
             {data.insights.map((insight: any, index: number) => (
               <motion.div key={index} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.7 + index * 0.05 }}
                 className={`p-5 rounded-xl border-2 ${insight.type === "positive" ? "bg-green-500/10 border-green-500/30" : insight.type === "warning" ? "bg-orange-500/10 border-orange-500/30" : "bg-blue-500/10 border-blue-500/30"}`}>
@@ -99,7 +101,7 @@ export function LifeMeter() {
       )}
 
       {hasRecommendationData && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="glass rounded-2xl p-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }} className="glass rounded-2xl p-4 md:p-6">
           <h3 className="mb-4">Recommendations</h3>
           <div className="space-y-3">
             {data.recommendations.map((rec: any, i: number) => (

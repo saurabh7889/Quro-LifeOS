@@ -6,8 +6,10 @@ import { SmartContextMenu } from "./ui/SmartContextMenu";
 import { useToast } from "./ui/Toast";
 import { ConfirmDeleteDialog, LargeViewDialog } from "./ui/ItemActionDialogs";
 import { useItemContextActions } from "./ui/useItemContextActions";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Diary() {
+  const isMobile = useIsMobile();
   const [entries, setEntries] = useState<any[]>([]);
   const [mood, setMood] = useState("neutral");
   const [energy, setEnergy] = useState(7);
@@ -82,9 +84,9 @@ export function Diary() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6 max-w-4xl mx-auto`}>
       <div className="flex items-center justify-between">
-        <div><h2 className="mb-1">Daily Diary</h2><p className="text-sm text-muted-foreground">Reflect on your day and track your mood</p></div>
+        <div><h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Daily Diary</h2><p className="text-sm text-muted-foreground">Reflect on your day and track your mood</p></div>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-6">

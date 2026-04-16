@@ -17,8 +17,10 @@ import { useToast } from "./ui/Toast";
 import { ConfirmDeleteDialog, LargeViewDialog } from "./ui/ItemActionDialogs";
 import { useItemContextActions } from "./ui/useItemContextActions";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Study() {
+  const isMobile = useIsMobile();
   const [subjects, setSubjects] = useState<any[]>([]);
   const [resources, setResources] = useState<any[]>([]);
   const [notes, setNotes] = useState<any[]>([]);
@@ -174,32 +176,42 @@ export function Study() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
+      <div className={`${isMobile ? 'space-y-3' : 'flex items-center justify-between'}`}>
         <div>
-          <h2 className="mb-1">Study System</h2>
+          <h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Study System</h2>
           <p className="text-sm text-muted-foreground">Track your academic progress and resources</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-input border border-border">
-            <Layers className="w-4 h-4 text-muted-foreground" />
-            <select value={scope} onChange={(e) => setScope(e.target.value)} className="bg-transparent text-sm focus:outline-none">
-              <option value="semester-1">Semester 1</option>
-              <option value="semester-2">Semester 2</option>
-              <option value="semester-3">Semester 3</option>
-              <option value="semester-4">Semester 4</option>
-              <option value="semester-5">Semester 5</option>
-              <option value="semester-6">Semester 6</option>
-              <option value="semester-7">Semester 7</option>
-              <option value="semester-8">Semester 8</option>
-              <option value="self-study">Self Study</option>
-            </select>
-          </div>
-          <button onClick={() => setShowSubjectForm(!showSubjectForm)} className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:glow transition-all flex items-center gap-2">
-            <Plus className="w-4 h-4" />Add Subject
+        <div className={`flex items-center gap-2 md:gap-3 ${isMobile ? 'flex-wrap' : ''}`}>
+          {isMobile ? (
+            <div className="flex gap-2 overflow-x-auto w-full pb-1" style={{ scrollbarWidth: 'none' }}>
+              {['semester-1','semester-2','semester-3','semester-4','semester-5','semester-6','semester-7','semester-8','self-study'].map(s => (
+                <button key={s} onClick={() => setScope(s)} className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium tap-feedback transition-all ${scope === s ? 'bg-primary text-primary-foreground' : 'bg-input border border-border'}`}>
+                  {s === 'self-study' ? 'Self Study' : `Sem ${s.split('-')[1]}`}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-input border border-border">
+              <Layers className="w-4 h-4 text-muted-foreground" />
+              <select value={scope} onChange={(e) => setScope(e.target.value)} className="bg-transparent text-sm focus:outline-none">
+                <option value="semester-1">Semester 1</option>
+                <option value="semester-2">Semester 2</option>
+                <option value="semester-3">Semester 3</option>
+                <option value="semester-4">Semester 4</option>
+                <option value="semester-5">Semester 5</option>
+                <option value="semester-6">Semester 6</option>
+                <option value="semester-7">Semester 7</option>
+                <option value="semester-8">Semester 8</option>
+                <option value="self-study">Self Study</option>
+              </select>
+            </div>
+          )}
+          <button onClick={() => setShowSubjectForm(!showSubjectForm)} className={`${isMobile ? 'flex-1 py-2 text-sm' : 'px-4 py-2'} bg-secondary text-secondary-foreground rounded-lg hover:glow transition-all flex items-center justify-center gap-2 tap-feedback`}>
+            <Plus className="w-4 h-4" />{isMobile ? 'Subject' : 'Add Subject'}
           </button>
-          <button onClick={() => setShowResourceForm(!showResourceForm)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2">
-            <Plus className="w-4 h-4" />Add Resource
+          <button onClick={() => setShowResourceForm(!showResourceForm)} className={`${isMobile ? 'flex-1 py-2 text-sm' : 'px-4 py-2'} bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center justify-center gap-2 tap-feedback`}>
+            <Plus className="w-4 h-4" />{isMobile ? 'Resource' : 'Add Resource'}
           </button>
         </div>
       </div>
@@ -232,7 +244,7 @@ export function Study() {
         </motion.form>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="glass rounded-2xl p-6">
           <h3 className="text-sm text-muted-foreground mb-4">Current CGPA</h3>
           <div className="text-center mb-4">
@@ -250,7 +262,7 @@ export function Study() {
         <div className="lg:col-span-2 glass rounded-2xl p-6">
           <h3 className="mb-4 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-green-500" />Performance Trend</h3>
           {trendData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={isMobile ? 120 : 160}>
               <LineChart data={trendData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" />
                 <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: 12 }} />
@@ -268,7 +280,7 @@ export function Study() {
       {subjects.length > 0 && (
         <div>
           <h3 className="mb-4">Subject Performance</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
             {subjects.map((subject, index) => {
             const pinKey = `subject-${subject.id}`;
             return (
@@ -304,7 +316,7 @@ export function Study() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
         <div>
           <h3 className="mb-4">Study Resources</h3>
           <div className="space-y-3">
@@ -386,7 +398,7 @@ export function Study() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-6">
         <h3 className="mb-4">CGPA Advisor</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
           <div>
             <label className="block text-sm text-muted-foreground mb-2">Target CGPA</label>
             <input type="number" step="0.01" value={targetCGPA} onChange={(e) => updateTargetCGPA(e.target.value)} className="w-full px-4 py-3 bg-input rounded-lg border border-border focus:border-primary focus:outline-none" />

@@ -16,8 +16,11 @@ import { useToast } from "./ui/Toast";
 import { ConfirmDeleteDialog, LargeViewDialog } from "./ui/ItemActionDialogs";
 import { useItemContextActions } from "./ui/useItemContextActions";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { SwipeableCard } from "./ui/SwipeableCard";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Finance() {
+  const isMobile = useIsMobile();
   const [summary, setSummary] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -93,17 +96,17 @@ export function Finance() {
   const hasFinanceData = transactions.length > 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
       <div className="flex items-center justify-between">
-        <div><h2 className="mb-1">Finance</h2><p className="text-sm text-muted-foreground">Track your income, expenses, and savings</p></div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2"><Plus className="w-4 h-4" />Add Transaction</button>
+        <div><h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Finance</h2><p className="text-sm text-muted-foreground">Track your income, expenses, and savings</p></div>
+        <button onClick={() => setShowForm(!showForm)} className={`${isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'} bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2 tap-feedback`}><Plus className="w-4 h-4" />{isMobile ? 'Add' : 'Add Transaction'}</button>
       </div>
 
       {showForm && (
         <motion.form initial={{ opacity: 0 }} animate={{ opacity: 1 }} onSubmit={createTransaction} className="glass rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between"><h3>New Transaction</h3><button type="button" onClick={() => setShowForm(false)}><X className="w-5 h-5 text-muted-foreground" /></button></div>
           <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name..." required className="w-full px-4 py-3 bg-input rounded-lg border border-border focus:border-primary focus:outline-none" />
-          <div className="grid grid-cols-3 gap-4">
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
             <input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} placeholder="Amount" required className="px-3 py-2 bg-input rounded-lg border border-border" />
             <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="px-3 py-2 bg-input rounded-lg border border-border">
               <option value="income">Income</option><option value="expense">Expense</option>
@@ -116,7 +119,7 @@ export function Finance() {
         </motion.form>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><TrendingUp className="w-5 h-5 text-green-500" /></div><div><p className="text-xs text-muted-foreground">Income</p><h3 className="font-bold">₹{summary.totalIncome.toLocaleString()}</h3></div></div>
         </motion.div>
@@ -132,10 +135,10 @@ export function Finance() {
       </div>
 
       {hasFinanceData && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">Income vs Expenses</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={isMobile ? 180 : 250}>
             <BarChart data={summary.monthlyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" />
               <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: 12 }} />
@@ -149,7 +152,7 @@ export function Finance() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">Expense Breakdown</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={isMobile ? 180 : 250}>
             <PieChart>
               <Pie data={summary.expenseBreakdown} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="value">
                 {summary.expenseBreakdown.map((entry: any, index: number) => (<Cell key={`cell-${index}`} fill={entry.color} />))}

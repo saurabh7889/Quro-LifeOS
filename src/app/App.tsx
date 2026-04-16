@@ -44,6 +44,11 @@ import { AdminDashboard } from "./components/AdminDashboard";
 import { Profile } from "./components/Profile";
 import { Settings } from "./components/Settings";
 import { ToastProvider } from "./components/ui/Toast";
+import { useIsMobile } from "./components/ui/use-mobile";
+import { MobileBottomNav } from "./components/ui/MobileBottomNav";
+import { MobileFAB } from "./components/ui/MobileFAB";
+import { MobileHeader } from "./components/ui/MobileHeader";
+import { MobileMoreDrawer } from "./components/ui/MobileMoreDrawer";
 import * as api from "./api";
 
 function AppContent() {
@@ -56,6 +61,9 @@ function AppContent() {
   const [showSearch, setShowSearch] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const [showMoreDrawer, setShowMoreDrawer] = useState(false);
+
+  const isMobile = useIsMobile();
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -182,6 +190,125 @@ function AppContent() {
 
   const unreadCount = notifs.filter((n) => !n.read).length;
 
+  const toggleTheme = () => {
+    const html = document.documentElement;
+    if (html.classList.contains("dark")) {
+      html.classList.remove("dark");
+      localStorage.setItem("quro_theme", "light");
+      setIsDark(false);
+    } else {
+      html.classList.add("dark");
+      localStorage.setItem("quro_theme", "dark");
+      setIsDark(true);
+    }
+  };
+
+  // ============ MOBILE LAYOUT ============
+  if (isMobile) {
+    return (
+      <div className="h-screen w-screen overflow-hidden bg-background flex flex-col">
+        {/* Mobile Header */}
+        <MobileHeader
+          isDark={isDark}
+          onToggleTheme={toggleTheme}
+          unreadCount={unreadCount}
+          onNotificationsToggle={() => setShowNotifications(!showNotifications)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchResults={searchResults}
+          onSearchResultClick={handleSearchResultClick}
+        />
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto mobile-content-area">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeView}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="min-h-full"
+            >
+              {renderView()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Mobile Notifications Panel */}
+        <AnimatePresence>
+          {showNotifications && (
+            <motion.div
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-[105] bg-background/95 backdrop-blur-xl"
+            >
+              <div className="mobile-header">
+                <h3 className="text-sm font-bold">Notifications</h3>
+                <div className="flex items-center gap-2">
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={() => {
+                        api.notifications.markAllRead().then(() => {
+                          setNotifs(notifs.map((n) => ({ ...n, read: 1 })));
+                        });
+                      }}
+                      className="text-xs text-primary tap-feedback px-3 py-1.5"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                  <button onClick={() => setShowNotifications(false)} className="p-2 tap-feedback">
+                    <ChevronDown className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-y-auto p-4 space-y-3" style={{ maxHeight: "calc(100vh - 56px)" }}>
+                {notifs.map((notif, i) => (
+                  <motion.div
+                    key={notif.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    className={`glass rounded-xl p-4 ${notif.read ? "opacity-50" : ""}`}
+                  >
+                    <h4 className="text-sm mb-1">{notif.title}</h4>
+                    <p className="text-xs text-muted-foreground mb-2">{notif.description}</p>
+                    <span className="text-xs text-accent">{notif.time}</span>
+                  </motion.div>
+                ))}
+                {notifs.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-8">No notifications</p>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* FAB */}
+        <MobileFAB onNavigate={setActiveView} />
+
+        {/* Bottom Nav */}
+        <MobileBottomNav
+          activeView={activeView}
+          onNavigate={setActiveView}
+          onMoreOpen={() => setShowMoreDrawer(true)}
+        />
+
+        {/* More Drawer */}
+        <MobileMoreDrawer
+          open={showMoreDrawer}
+          onClose={() => setShowMoreDrawer(false)}
+          onNavigate={setActiveView}
+          isAdmin={isAdmin}
+        />
+      </div>
+    );
+  }
+
+  // ============ DESKTOP LAYOUT (unchanged) ============
   return (
     <div className="h-screen w-screen overflow-hidden bg-background flex">
       <aside className="w-64 h-full border-r border-sidebar-border bg-sidebar flex flex-col">
@@ -335,18 +462,7 @@ function AppContent() {
                       <Settings2 className="w-4 h-4 text-muted-foreground" />Settings
                     </button>
                     <button
-                      onClick={() => {
-                        const html = document.documentElement;
-                        if (html.classList.contains("dark")) {
-                          html.classList.remove("dark");
-                          localStorage.setItem("quro_theme", "light");
-                          setIsDark(false);
-                        } else {
-                          html.classList.add("dark");
-                          localStorage.setItem("quro_theme", "dark");
-                          setIsDark(true);
-                        }
-                      }}
+                      onClick={toggleTheme}
                       className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-sm"
                     >
                       {isDark ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4 text-indigo-400" />}

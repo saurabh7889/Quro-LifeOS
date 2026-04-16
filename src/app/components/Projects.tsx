@@ -3,8 +3,10 @@ import { motion } from "motion/react";
 import { Plus, CheckCircle2, Circle, Calendar, X } from "lucide-react";
 import * as api from "../api";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Projects() {
+  const isMobile = useIsMobile();
   const [projects, setProjects] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: "", deadline: "", milestones: "" });
@@ -34,17 +36,17 @@ export function Projects() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="mb-1">Projects</h2>
+          <h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Projects</h2>
           <p className="text-sm text-muted-foreground">
             {projects.filter((p) => p.status === "In Progress").length} active •{" "}
             {projects.filter((p) => p.status === "Completed").length} completed
           </p>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2">
-          <Plus className="w-4 h-4" />New Project
+        <button onClick={() => setShowForm(!showForm)} className={`${isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'} bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2 tap-feedback`}>
+          <Plus className="w-4 h-4" />{isMobile ? 'Add' : 'New Project'}
         </button>
       </div>
 
@@ -58,10 +60,10 @@ export function Projects() {
         </motion.form>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="glass rounded-xl p-4"><p className="text-sm text-muted-foreground mb-2">Total Projects</p><p className="text-3xl font-bold">{projects.length}</p></div>
-        <div className="glass rounded-xl p-4"><p className="text-sm text-muted-foreground mb-2">In Progress</p><p className="text-3xl font-bold text-blue-500">{projects.filter((p) => p.status === "In Progress").length}</p></div>
-        <div className="glass rounded-xl p-4"><p className="text-sm text-muted-foreground mb-2">Completed</p><p className="text-3xl font-bold text-green-500">{projects.filter((p) => p.status === "Completed").length}</p></div>
+      <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-3' : 'grid-cols-1 lg:grid-cols-3'}`}>
+        <div className="glass rounded-xl p-3 md:p-4"><p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2 text-center md:text-left">Total Projects</p><p className="text-xl md:text-3xl font-bold text-center md:text-left">{projects.length}</p></div>
+        <div className="glass rounded-xl p-3 md:p-4"><p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2 text-center md:text-left">In Progress</p><p className="text-xl md:text-3xl font-bold text-blue-500 text-center md:text-left">{projects.filter((p) => p.status === "In Progress").length}</p></div>
+        <div className="glass rounded-xl p-3 md:p-4"><p className="text-xs md:text-sm text-muted-foreground mb-1 md:mb-2 text-center md:text-left">Completed</p><p className="text-xl md:text-3xl font-bold text-green-500 text-center md:text-left">{projects.filter((p) => p.status === "Completed").length}</p></div>
       </div>
 
       <div className="space-y-4">
@@ -71,7 +73,7 @@ export function Projects() {
           </div>
         )}
         {projects.map((project, index) => (
-          <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="glass rounded-2xl p-6">
+          <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.1 }} className="glass rounded-2xl p-4 md:p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <h3 className="mb-2">{project.name}</h3>
@@ -81,7 +83,7 @@ export function Projects() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <p className="text-3xl font-bold text-primary">{project.progress}%</p>
+                <p className="text-2xl md:text-3xl font-bold text-primary">{project.progress}%</p>
                 <button onClick={() => deleteProject(project.id)} className="p-1 rounded hover:bg-red-500/20"><X className="w-4 h-4 text-muted-foreground hover:text-red-500" /></button>
               </div>
             </div>
@@ -93,7 +95,7 @@ export function Projects() {
               <div className="space-y-2">
                 {(project.milestones || []).map((milestone: any, i: number) => (
                   <motion.div key={milestone.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 + index * 0.1 + i * 0.05 }}
-                    className="flex items-center gap-3 cursor-pointer" onClick={() => toggleMilestone(project.id, milestone.id)}>
+                    className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer tap-feedback" onClick={() => toggleMilestone(project.id, milestone.id)}>
                     {milestone.completed ? <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" /> : <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0" />}
                     <span className={`text-sm ${milestone.completed ? "line-through text-muted-foreground" : ""}`}>{milestone.name}</span>
                   </motion.div>

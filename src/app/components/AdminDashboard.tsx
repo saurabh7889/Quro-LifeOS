@@ -4,8 +4,10 @@ import { Shield, Users, Trash2, Search, CheckSquare, RefreshCw, FolderKanban, Al
 import * as api from "../api";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "./ui/Toast";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function AdminDashboard() {
+  const isMobile = useIsMobile();
   const { user } = useAuth();
   const { showToast } = useToast();
   const [users, setUsers] = useState<any[]>([]);
@@ -72,24 +74,24 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
+      <div className={`flex ${isMobile ? 'flex-col gap-3 items-start' : 'items-center justify-between'}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
             <Crown className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h2 className="mb-0">Admin Dashboard</h2>
+            <h2 className={`mb-0 ${isMobile ? 'text-lg' : ''}`}>Admin Dashboard</h2>
             <p className="text-sm text-muted-foreground">Manage users and monitor platform activity</p>
           </div>
         </div>
-        <button onClick={loadData} className="px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors flex items-center gap-2 text-sm">
+        <button onClick={loadData} className={`${isMobile ? 'w-full justify-center' : ''} px-4 py-2 bg-primary/20 text-primary rounded-lg hover:bg-primary/30 transition-colors flex items-center gap-2 text-sm tap-feedback`}>
           <RefreshCw className="w-4 h-4" />Refresh
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         {statCards.map((card, index) => {
           const Icon = card.icon;
           return (
@@ -109,14 +111,14 @@ export function AdminDashboard() {
       </div>
 
       {/* User Management */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className={`glass rounded-2xl ${isMobile ? 'p-4' : 'p-6'}`}>
+        <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'} mb-6`}>
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-primary" />
             <h3>User Management</h3>
             <span className="text-xs text-muted-foreground ml-2">({filtered.length} users)</span>
           </div>
-          <div className="relative w-64">
+          <div className={`relative ${isMobile ? 'w-full' : 'w-64'}`}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
@@ -128,8 +130,10 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* Table Header */}
-        <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider border-b border-border mb-2">
+        <div className="overflow-x-auto">
+          <div className="min-w-[800px]">
+            {/* Table Header */}
+            <div className="grid grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr_auto] gap-4 px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider border-b border-border mb-2">
           <span>Name</span>
           <span>Email</span>
           <span>Level</span>
@@ -185,11 +189,13 @@ export function AdminDashboard() {
             })}
           </AnimatePresence>
 
-          {filtered.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              {searchQuery ? "No users matching your search" : "No users found"}
-            </p>
-          )}
+              {filtered.length === 0 && (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  {searchQuery ? "No users matching your search" : "No users found"}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </motion.div>
 

@@ -6,8 +6,10 @@ import { SmartContextMenu } from "./ui/SmartContextMenu";
 import { useToast } from "./ui/Toast";
 import { ConfirmDeleteDialog, LargeViewDialog } from "./ui/ItemActionDialogs";
 import { useItemContextActions } from "./ui/useItemContextActions";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Entertainment() {
+  const isMobile = useIsMobile();
   const [movies, setMovies] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title: "", year: "", genre: "", poster: "🎬", status: "watchlist" });
@@ -73,17 +75,17 @@ export function Entertainment() {
   const avgRating = watched.length > 0 ? (watched.reduce((sum, m) => sum + (m.rating || 0), 0) / watched.length).toFixed(1) : "0";
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
       <div className="flex items-center justify-between">
-        <div><h2 className="mb-1">Entertainment</h2><p className="text-sm text-muted-foreground">Track movies and shows you want to watch</p></div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2"><Plus className="w-4 h-4" />Add Movie</button>
+        <div><h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Entertainment</h2><p className="text-sm text-muted-foreground">Track movies and shows you want to watch</p></div>
+        <button onClick={() => setShowForm(!showForm)} className={`${isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'} bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2 tap-feedback`}><Plus className="w-4 h-4" />{isMobile ? 'Add' : 'Add Movie'}</button>
       </div>
 
       {showForm && (
         <motion.form initial={{ opacity: 0 }} animate={{ opacity: 1 }} onSubmit={createMovie} className="glass rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between"><h3>Add Movie</h3><button type="button" onClick={() => setShowForm(false)}><X className="w-5 h-5 text-muted-foreground" /></button></div>
           <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Movie title..." required className="w-full px-4 py-3 bg-input rounded-lg border border-border focus:border-primary focus:outline-none" />
-          <div className="grid grid-cols-3 gap-4">
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
             <input type="number" value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="Year" className="px-3 py-2 bg-input rounded-lg border border-border" />
             <input type="text" value={form.genre} onChange={(e) => setForm({ ...form, genre: e.target.value })} placeholder="Genre" className="px-3 py-2 bg-input rounded-lg border border-border" />
             <input type="text" value={form.poster} onChange={(e) => setForm({ ...form, poster: e.target.value })} placeholder="Emoji" className="px-3 py-2 bg-input rounded-lg border border-border" />
@@ -109,8 +111,8 @@ export function Entertainment() {
 
       {watchlist.length > 0 && (
         <div>
-          <h3 className="mb-4">Watchlist</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h3 className={`mb-3 md:mb-4 ${isMobile ? 'text-sm' : ''}`}>Watchlist</h3>
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
             {watchlist.map((movie, index) => {
               const pinKey = `entertainment-movie-${movie.id}`;
               return (
@@ -148,8 +150,8 @@ export function Entertainment() {
 
       {watched.length > 0 && (
         <div>
-          <h3 className="mb-4">Watched Movies</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <h3 className={`mb-3 md:mb-4 ${isMobile ? 'text-sm' : ''}`}>Watched Movies</h3>
+          <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
             {watched.map((movie, index) => {
               const pinKey = `entertainment-movie-${movie.id}`;
               return (

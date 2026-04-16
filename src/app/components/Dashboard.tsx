@@ -4,9 +4,11 @@ import { TrendingUp, Clock, Flame, Target, Brain, Sparkles, FolderKanban } from 
 import { useAuth } from "../contexts/AuthContext";
 import * as api from "../api";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Dashboard() {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [taskStats, setTaskStats] = useState({ total: 0, completed: 0 });
   const [habitStats, setHabitStats] = useState({ total: 0, completed: 0 });
   const [projectCount, setProjectCount] = useState(0);
@@ -41,42 +43,47 @@ export function Dashboard() {
     habitStats.total > 0 ||
     projectCount > 0;
 
+  const circleSize = isMobile ? 120 : 160;
+  const circleR = isMobile ? 52 : 70;
+  const circleCx = circleSize / 2;
+  const circleC = 2 * Math.PI * circleR;
+
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
       <div>
-        <h2 className="mb-1">Welcome {hasDashboardData ? `back, ${user.name.split(" ")[0]} 👋` : "to QURO"}</h2>
+        <h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Welcome {hasDashboardData ? `back, ${user.name.split(" ")[0]} 👋` : "to QURO"}</h2>
         <p className="text-sm text-muted-foreground">
           {hasDashboardData ? "Here's what's happening with your life today" : "Start building your life system"}
         </p>
       </div>
 
       {!hasDashboardData && (
-        <div className="glass rounded-2xl p-8">
+        <div className="glass rounded-2xl p-6 md:p-8">
           <SectionEmptyState message="No data yet. Start by adding your first task or habit to unlock your dashboard 🚀" className="py-6" />
         </div>
       )}
 
       {hasDashboardData && (
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="lg:col-span-1 glass rounded-2xl p-6 relative overflow-hidden"
+          className="lg:col-span-1 glass rounded-2xl p-5 md:p-6 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20" />
           <div className="relative z-10">
-            <h3 className="text-sm text-muted-foreground mb-4">Life Score</h3>
-            <div className="flex items-center justify-center mb-6">
-              <div className="relative w-40 h-40">
+            <h3 className="text-sm text-muted-foreground mb-3 md:mb-4">Life Score</h3>
+            <div className="flex items-center justify-center mb-4 md:mb-6">
+              <div className="relative" style={{ width: circleSize, height: circleSize }}>
                 <svg className="w-full h-full transform -rotate-90">
-                  <circle cx="80" cy="80" r="70" stroke="rgba(99, 102, 241, 0.1)" strokeWidth="12" fill="none" />
+                  <circle cx={circleCx} cy={circleCx} r={circleR} stroke="rgba(99, 102, 241, 0.1)" strokeWidth={isMobile ? 10 : 12} fill="none" />
                   <motion.circle
-                    cx="80" cy="80" r="70"
+                    cx={circleCx} cy={circleCx} r={circleR}
                     stroke="url(#gradient)"
-                    strokeWidth="12" fill="none" strokeLinecap="round"
-                    initial={{ strokeDasharray: "440", strokeDashoffset: 440 }}
-                    animate={{ strokeDashoffset: 440 - (440 * user.life_score) / 100 }}
+                    strokeWidth={isMobile ? 10 : 12} fill="none" strokeLinecap="round"
+                    initial={{ strokeDasharray: `${circleC}`, strokeDashoffset: circleC }}
+                    animate={{ strokeDashoffset: circleC - (circleC * user.life_score) / 100 }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                   />
                   <defs>
@@ -87,21 +94,21 @@ export function Dashboard() {
                   </defs>
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                  <span className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  <span className={`${isMobile ? 'text-3xl' : 'text-4xl'} font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent`}>
                     {user.life_score}
                   </span>
                   <span className="text-xs text-muted-foreground">/ 100</span>
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">Level</p>
-                <p className="text-xl font-bold">{user.level}</p>
+                <p className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold`}>{user.level}</p>
               </div>
               <div className="text-center">
                 <p className="text-xs text-muted-foreground mb-1">Streak</p>
-                <p className="text-xl font-bold flex items-center justify-center gap-1">
+                <p className={`${isMobile ? 'text-lg' : 'text-xl'} font-bold flex items-center justify-center gap-1`}>
                   <Flame className="w-5 h-5 text-orange-500" />
                   {user.streak}
                 </p>
@@ -110,15 +117,15 @@ export function Dashboard() {
           </div>
         </motion.div>
 
-        <div className="lg:col-span-2 grid grid-cols-2 gap-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
+        <div className={`${isMobile ? '' : 'lg:col-span-2'} grid grid-cols-2 gap-3 md:gap-6`}>
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass rounded-2xl p-4 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-primary/20 flex items-center justify-center`}>
+                <TrendingUp className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-primary`} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Total XP</p>
-                <h3 className="font-bold">{user.xp.toLocaleString()}</h3>
+                <h3 className={`font-bold ${isMobile ? 'text-sm' : ''}`}>{user.xp.toLocaleString()}</h3>
               </div>
             </div>
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
@@ -127,27 +134,27 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground mt-2">{100 - (user.xp % 100)} XP to Level {user.level + 1}</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-accent" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="glass rounded-2xl p-4 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-accent/20 flex items-center justify-center`}>
+                <Sparkles className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-accent`} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Coins</p>
-                <h3 className="font-bold">{user.coins.toLocaleString()}</h3>
+                <h3 className={`font-bold ${isMobile ? 'text-sm' : ''}`}>{user.coins.toLocaleString()}</h3>
               </div>
             </div>
             <p className="text-xs text-accent">Earned from tasks & habits</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
-                <Target className="w-5 h-5 text-green-500" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass rounded-2xl p-4 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-green-500/20 flex items-center justify-center`}>
+                <Target className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-green-500`} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Tasks Today</p>
-                <h3 className="font-bold">{taskStats.completed} / {taskStats.total}</h3>
+                <h3 className={`font-bold ${isMobile ? 'text-sm' : ''}`}>{taskStats.completed} / {taskStats.total}</h3>
               </div>
             </div>
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
@@ -155,14 +162,14 @@ export function Dashboard() {
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-orange-500" />
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass rounded-2xl p-4 md:p-6">
+            <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-orange-500/20 flex items-center justify-center`}>
+                <Clock className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-orange-500`} />
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Habits</p>
-                <h3 className="font-bold">{habitStats.completed} / {habitStats.total}</h3>
+                <h3 className={`font-bold ${isMobile ? 'text-sm' : ''}`}>{habitStats.completed} / {habitStats.total}</h3>
               </div>
             </div>
             <div className="relative h-2 bg-muted rounded-full overflow-hidden">
@@ -170,36 +177,38 @@ export function Dashboard() {
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <FolderKanban className="w-5 h-5 text-violet-500" />
+          {!isMobile && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
+                  <FolderKanban className="w-5 h-5 text-violet-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Projects</p>
+                  <h3 className="font-bold">{projectCount}</h3>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Projects</p>
-                <h3 className="font-bold">{projectCount}</h3>
-              </div>
-            </div>
-            <p className="text-xs text-violet-400">Active projects</p>
-          </motion.div>
+              <p className="text-xs text-violet-400">Active projects</p>
+            </motion.div>
+          )}
         </div>
       </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-6">
-          <h3 className="mb-4 flex items-center gap-2">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-4 md:p-6">
+          <h3 className={`mb-3 md:mb-4 flex items-center gap-2 ${isMobile ? 'text-sm' : ''}`}>
             <Brain className="w-5 h-5 text-accent" />
             AI Insights
           </h3>
           <div className="space-y-3">
-            <div className="p-4 rounded-lg bg-accent/10 border border-accent/30">
+            <div className="p-3 md:p-4 rounded-lg bg-accent/10 border border-accent/30">
               <p className="text-sm mb-1">🎯 Productivity {taskPercent >= 70 ? "on fire!" : "needs a boost"}</p>
               <p className="text-xs text-muted-foreground">
                 You've completed {taskPercent}% of tasks. {taskPercent >= 70 ? "Keep up the momentum!" : "Try to knock out a few more today."}
               </p>
             </div>
-            <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/30">
+            <div className="p-3 md:p-4 rounded-lg bg-orange-500/10 border border-orange-500/30">
               <p className="text-sm mb-1">{habitPercent >= 75 ? "✅ Habits are solid" : "⚠️ Habits need attention"}</p>
               <p className="text-xs text-muted-foreground">
                 {habitStats.completed} of {habitStats.total} habits done today. {habitPercent >= 75 ? "Great consistency!" : "Try to complete more habits today."}
@@ -208,9 +217,9 @@ export function Dashboard() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="glass rounded-2xl p-6">
-          <h3 className="mb-4">Upcoming Tasks</h3>
-          <div className="space-y-3">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="glass rounded-2xl p-4 md:p-6">
+          <h3 className={`mb-3 md:mb-4 ${isMobile ? 'text-sm' : ''}`}>Upcoming Tasks</h3>
+          <div className="space-y-2 md:space-y-3">
             {upcomingTasks.map((task, i) => (
               <motion.div
                 key={task.id}
@@ -225,7 +234,7 @@ export function Dashboard() {
                   }`} />
                   <span className="text-sm">{task.title}</span>
                 </div>
-                <span className="text-xs text-muted-foreground">{task.deadline}</span>
+                {!isMobile && <span className="text-xs text-muted-foreground">{task.deadline}</span>}
               </motion.div>
             ))}
             {upcomingTasks.length === 0 && (
@@ -238,7 +247,7 @@ export function Dashboard() {
       </div>
 
       {hasDashboardData && (
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="glass rounded-2xl p-8 text-center relative overflow-hidden">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className={`glass rounded-2xl ${isMobile ? 'p-5' : 'p-8'} text-center relative overflow-hidden`}>
         <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10" />
         <div className="relative z-10">
           <motion.p
@@ -246,7 +255,7 @@ export function Dashboard() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="text-xl italic"
+            className={`${isMobile ? 'text-base' : 'text-xl'} italic`}
           >
             "Progress compounds when actions stay consistent."
           </motion.p>

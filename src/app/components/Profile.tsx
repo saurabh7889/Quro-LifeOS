@@ -7,10 +7,12 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import * as api from "../api";
 import { useToast } from "./ui/Toast";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Profile() {
   const { user, updateUser, deleteAccount, logout } = useAuth();
   const { showToast } = useToast();
+  const isMobile = useIsMobile();
   const [editing, setEditing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [dashStats, setDashStats] = useState({ totalTasks: 0, completedTasks: 0, totalHabits: 0, completedHabits: 0, totalProjects: 0 });
@@ -92,7 +94,7 @@ export function Profile() {
   const goalsArray = user.goals ? user.goals.split(",").map(g => g.trim()).filter(Boolean) : [];
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6 max-w-4xl mx-auto`}>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -147,7 +149,7 @@ export function Profile() {
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
         {/* Left Column: Basic Info & Avatar */}
         <div className="lg:col-span-1 space-y-6">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="glass rounded-2xl p-6 relative overflow-hidden text-center flex flex-col items-center">
@@ -229,7 +231,7 @@ export function Profile() {
               <User className="w-5 h-5 text-primary" /> Personal Details
             </h4>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
               <div className="space-y-1">
                 <label className="text-xs font-medium text-muted-foreground">Full Name</label>
                 {editing ? (

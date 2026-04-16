@@ -4,10 +4,12 @@ import { Settings2, Palette, Bell, User, Moon, Sun, Monitor, Loader2 } from "luc
 import { useAuth } from "../contexts/AuthContext";
 import * as api from "../api";
 import { useToast } from "./ui/Toast";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Settings({ onNavigate }: { onNavigate?: (view: string) => void }) {
   const { user, updateUser } = useAuth();
   const { showToast } = useToast();
+  const isMobile = useIsMobile();
   const [isDark, setIsDark] = useState(document.documentElement.classList.contains("dark"));
   const [savingSettings, setSavingSettings] = useState(false);
 
@@ -32,7 +34,7 @@ export function Settings({ onNavigate }: { onNavigate?: (view: string) => void }
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-3xl mx-auto">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6 max-w-3xl mx-auto`}>
       <div>
         <h2 className="mb-1">Settings</h2>
         <p className="text-sm text-muted-foreground">Customize your QURO experience</p>

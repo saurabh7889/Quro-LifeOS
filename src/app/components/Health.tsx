@@ -8,8 +8,11 @@ import { useToast } from "./ui/Toast";
 import { ConfirmDeleteDialog, LargeViewDialog } from "./ui/ItemActionDialogs";
 import { useItemContextActions } from "./ui/useItemContextActions";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { SwipeableCard } from "./ui/SwipeableCard";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Health() {
+  const isMobile = useIsMobile();
   const [metrics, setMetrics] = useState<any>(null);
   const [workouts, setWorkouts] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -74,10 +77,10 @@ export function Health() {
   const hasHealthData = workouts.length > 0;
 
   return (
-    <div className="p-6 space-y-6">
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
       <div className="flex items-center justify-between">
-        <div><h2 className="mb-1">Health & Fitness</h2><p className="text-sm text-muted-foreground">Track your physical activity and wellness</p></div>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2"><Plus className="w-4 h-4" />Log Workout</button>
+        <div><h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Health & Fitness</h2><p className="text-sm text-muted-foreground">Track your physical activity and wellness</p></div>
+        <button onClick={() => setShowForm(!showForm)} className={`${isMobile ? 'px-3 py-2 text-sm' : 'px-4 py-2'} bg-primary text-primary-foreground rounded-lg hover:glow transition-all flex items-center gap-2 tap-feedback`}><Plus className="w-4 h-4" />{isMobile ? 'Log' : 'Log Workout'}</button>
       </div>
 
       {showForm && (
@@ -92,7 +95,7 @@ export function Health() {
         </motion.form>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3"><div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center"><Heart className="w-5 h-5 text-green-500" /></div><div><p className="text-xs text-muted-foreground">Fitness Score</p><h3 className="font-bold">{metrics.fitnessScore}/100</h3></div></div>
           <div className="relative h-2 bg-muted rounded-full overflow-hidden"><motion.div initial={{ width: 0 }} animate={{ width: `${metrics.fitnessScore}%` }} transition={{ duration: 1, delay: 0.3 }} className="absolute inset-y-0 left-0 bg-green-500" /></div>
@@ -111,7 +114,7 @@ export function Health() {
       </div>
 
       {hasHealthData && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }} className="lg:col-span-1 glass rounded-2xl p-6">
           <h3 className="text-sm text-muted-foreground mb-4">Steps Progress</h3>
           <div className="flex items-center justify-center mb-4">
@@ -132,7 +135,7 @@ export function Health() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="lg:col-span-2 glass rounded-2xl p-6">
           <h3 className="mb-4">Weekly Activity</h3>
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={isMobile ? 160 : 220}>
             <AreaChart data={metrics.activityData}>
               <defs><linearGradient id="stepsGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} /><stop offset="95%" stopColor="#3b82f6" stopOpacity={0} /></linearGradient></defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" />

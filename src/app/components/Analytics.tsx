@@ -4,8 +4,10 @@ import { TrendingUp, Activity, Target, Zap } from "lucide-react";
 import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import * as api from "../api";
 import { SectionEmptyState } from "./ui/SectionEmptyState";
+import { useIsMobile } from "./ui/use-mobile";
 
 export function Analytics() {
+  const isMobile = useIsMobile();
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
@@ -28,10 +30,10 @@ export function Analytics() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      <div><h2 className="mb-1">Analytics</h2><p className="text-sm text-muted-foreground">Deep insights into your productivity and life balance</p></div>
+    <div className={`${isMobile ? 'p-4' : 'p-6'} space-y-4 md:space-y-6`}>
+      <div><h2 className={`mb-1 ${isMobile ? 'text-lg' : ''}`}>Analytics</h2><p className="text-sm text-muted-foreground">Deep insights into your productivity and life balance</p></div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={`grid gap-3 md:gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         {scoreCards.map((item, i) => {
           const Icon = item.icon;
           return (
@@ -45,11 +47,11 @@ export function Analytics() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'}`}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">Weekly Progress</h3>
           {hasWeeklyData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
               <BarChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" />
                 <XAxis dataKey="week" stroke="#9ca3af" style={{ fontSize: 12 }} />
@@ -69,7 +71,7 @@ export function Analytics() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">Life Balance Radar</h3>
           {hasRadarData ? (
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={isMobile ? 240 : 300}>
               <RadarChart data={radarData}>
                 <PolarGrid stroke="rgba(99, 102, 241, 0.2)" />
                 <PolarAngleAxis dataKey="category" stroke="#9ca3af" style={{ fontSize: 12 }} />
@@ -87,7 +89,7 @@ export function Analytics() {
       {hasXpData && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">XP Growth Over Time</h3>
-          <ResponsiveContainer width="100%" height={250}>
+          <ResponsiveContainer width="100%" height={isMobile ? 200 : 250}>
             <LineChart data={data.xpGrowthData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(99, 102, 241, 0.1)" />
               <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: 12 }} />
@@ -100,7 +102,7 @@ export function Analytics() {
       )}
 
       {(data.achievements?.length > 0 || data.improvements?.length > 0) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className={`grid gap-4 md:gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="glass rounded-2xl p-6">
           <h3 className="mb-4">Top Achievements This Month</h3>
           <div className="space-y-3">
