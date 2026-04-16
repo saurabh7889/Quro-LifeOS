@@ -7,7 +7,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173", // For local development
+    "https://qurolifeos.vercel.app" // Your Vercel frontend
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Health check (renamed to /api/ping to avoid collision with health module)
