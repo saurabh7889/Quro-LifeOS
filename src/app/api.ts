@@ -51,6 +51,10 @@ export const auth = {
     request<{ token: string; user: any }>('POST', '/auth/login', { email, password }),
   register: (name: string, email: string, password: string) =>
     request<{ token: string; user: any }>('POST', '/auth/register', { name, email, password }),
+  forgotPassword: (email: string) =>
+    request<{ message: string }>('POST', '/auth/forgot-password', { email }),
+  resetPassword: (id: string, token: string, password: string) =>
+    request<{ message: string }>('POST', '/auth/reset-password', { id, token, password }),
   setToken,
   getToken,
   clearToken,

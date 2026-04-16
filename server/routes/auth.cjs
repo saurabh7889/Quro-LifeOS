@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { db } = require('../db.cjs');
 const { JWT_SECRET } = require('../middleware/auth.cjs');
+const { sendResetEmail } = require('../mailer.cjs');
 
 const router = express.Router();
 
@@ -72,6 +73,67 @@ router.post('/login', (req, res) => {
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Forgot Password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+    if (!user) {
+      // Don't reveal if email exists, just return success
+      return res.json({ message: 'If that email exists, a reset link has been sent.' });
+    }
+
+    // Secret is combined with current password hash so token invalidates after password change
+    const secret = JWT_SECRET + user.password_hash;
+    const token = jwt.sign({ email: user.email, id: user.id }, secret, { expiresIn: '15m' });
+
+    // The frontend URL to redirect to
+    const frontendUrl = process.env.VITE_API_URL ? process.env.VITE_API_URL.replace('/api', '') : 'http://localhost:5173';
+    const resetLink = `${frontendUrl}?resetToken=${token}&id=${user.id}`;
+
+    await sendResetEmail(user.email, resetLink);
+
+    res.json({ message: 'If that email exists, a reset link has been sent.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Failed to process request' });
+  }
+});
+
+// Reset Password
+router.post('/reset-password', (req, res) => {
+  try {
+    const { id, token, password } = req.body;
+    if (!id || !token || !password) {
+      return res.status(400).json({ error: 'Invalid request' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    const secret = JWT_SECRET + user.password_hash;
+    try {
+      jwt.verify(token, secret);
+    } catch (err) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    const newPasswordHash = bcrypt.hashSync(password, 10);
+    db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(newPasswordHash, id);
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
   }
 });
 
