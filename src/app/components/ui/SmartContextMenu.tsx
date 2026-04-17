@@ -65,7 +65,7 @@ export function SmartContextMenu({ children, actions = [] }: SmartContextMenuPro
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent
-        className="min-w-60 rounded-2xl border bg-popover/90 text-popover-foreground p-2 backdrop-blur-2xl shadow-xl z-50"
+        className="min-w-60 rounded-2xl border bg-popover/95 text-popover-foreground p-2 backdrop-blur-3xl shadow-2xl z-50"
       >
         <ContextMenuLabel className="text-xs text-muted-foreground">Quick actions</ContextMenuLabel>
         {ranked.map((action) => {

@@ -59,7 +59,7 @@ export function MobileHeader({
             <motion.div
               initial={{ opacity: 0, y: -5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute top-full left-0 right-0 mt-1 mx-4 glass rounded-xl p-2 z-50 max-h-60 overflow-y-auto"
+              className="absolute top-full left-0 right-0 mt-1 mx-4 bg-popover/95 backdrop-blur-xl rounded-xl border border-border p-2 z-50 max-h-60 overflow-y-auto"
             >
               {searchResults.map((r: any, i: number) => (
                 <button

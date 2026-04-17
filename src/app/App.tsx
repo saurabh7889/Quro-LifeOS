@@ -399,7 +399,7 @@ function AppContent() {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="absolute top-full left-0 right-0 mt-2 glass rounded-lg p-2 z-50 max-h-60 overflow-y-auto"
+                className="absolute top-full left-0 right-0 mt-2 bg-popover/95 backdrop-blur-xl border border-border rounded-lg p-2 z-50 max-h-60 overflow-y-auto shadow-xl"
               >
                 {searchResults.map((r, i) => (
                   <button
@@ -442,7 +442,7 @@ function AppContent() {
                 <motion.div
                   initial={{ opacity: 0, y: 8, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  className="absolute right-0 top-full mt-2 w-56 glass rounded-xl border border-border shadow-2xl shadow-black/40 z-50 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 w-56 bg-popover/95 backdrop-blur-xl rounded-xl border border-border shadow-2xl shadow-black/40 z-50 overflow-hidden"
                 >
                   <div className="p-3 border-b border-border">
                     <p className="text-sm font-bold">{user.name}</p>
